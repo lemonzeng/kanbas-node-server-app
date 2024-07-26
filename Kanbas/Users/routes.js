@@ -45,16 +45,39 @@ export default function UserRoutes(app) {
     res.json(currentUser);
   };
 
-  const signin = async (req, res) => { 
-    const {username, password} = req.body;
-    const currentUser = await dao.findUserByCredentials(username, password);
-    if(currentUser){
-      req.session["currentUser"] = currentUser;
-      res.json(currentUser);
-    }else{
-      res.status(401).json({message: "Unable to login. Try again later.!!!"});
+  const signin = async (req, res) => {
+    try {
+      const { username, password } = req.body;
+  
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required." });
+      }
+  
+      const currentUser = await dao.findUserByCredentials(username, password);
+  
+      if (currentUser) {
+        req.session.currentUser = currentUser;
+        res.json(currentUser);
+      } else {
+        res.status(401).json({ message: "Invalid username or password." });
+      }
+    } catch (error) {
+      console.error("Error during signin:", {
+        message: error.message,
+        stack: error.stack,
+        username,
+      });
+  
+      if (error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
+        res.status(503).json({ message: "Service unavailable. Please try again later." });
+      } else if (error.message.includes('query')) {
+        res.status(500).json({ message: "Database query error. Please contact support." });
+      } else {
+        res.status(500).json({ message: "Internal server error. Please try again later." });
+      }
     }
   };
+  
 
   const signout = (req, res) => { 
     req.session.destroy();

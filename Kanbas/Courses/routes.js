@@ -6,11 +6,20 @@ export default function CourseRoutes(app) {
     // res.json(course);
     
     try {
+      console.log('Received request to create course with data:', req.body); 
+      const { name, description } = req.body;
+      if (!name || !description) {
+        console.log('Missing title or description');
+        return res.status(400).json({ message: 'Name and description are required.' });
+      }
+      
       const course = await dao.createCourse(req.body);
+      console.log('Course created successfully:', course);
+
       res.status(201).json(course);
     } catch (error) {
-      res.status(400).json({ message: error.message });
-      console.log("courseId is required.")
+      console.error('Error creating course:', error.message); 
+      res.status(500).json({ message: 'Internal server error.' });
     }
   };
   

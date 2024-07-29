@@ -19,17 +19,22 @@ mongoose.connect(CONNECTION_STRING, {
 }).catch((error) => {
   console.error('Error connecting to MongoDB:', error);
 });
+
 const app = express();
+
 app.use(cors({
   credentials: true,
   origin: process.env.NETLIFY_URL || "http://localhost:3000",
 }));
+
 app.use(express.json());
+
 const sessionOptions = {
   secret: "any string",
   resave: false,
   saveUninitialized: false,
 };
+
 if (process.env.NODE_ENV !== "development") {
   sessionOptions.proxy = true;
   sessionOptions.cookie = {
@@ -38,9 +43,19 @@ if (process.env.NODE_ENV !== "development") {
     domain: process.env.NODE_SERVER_DOMAIN,
   };
 }
+
 app.use(
   session(sessionOptions)
 );
+
+
+// 强制 HTTP 重定向到 HTTPS
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== "development" && req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect('https://' + req.headers.host + req.url);
+  }
+  next();
+});
 
 AssignmentRoutes(app);
 ModuleRoutes(app);

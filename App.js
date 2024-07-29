@@ -9,8 +9,16 @@ import AssignmentRoutes from "./Kanbas/Assignments/routes.js";
 import UserRoutes from "./Kanbas/Users/routes.js";
 import session from "express-session";
 import "dotenv/config";
+
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas";
-mongoose.connect(CONNECTION_STRING);
+mongoose.connect(CONNECTION_STRING, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('Connected to MongoDB successfully');
+}).catch((error) => {
+  console.error('Error connecting to MongoDB:', error);
+});
 const app = express();
 app.use(cors({
   credentials: true,
@@ -41,6 +49,8 @@ UserRoutes(app);
 
 Lab5(app);
 Hello(app);
+
+
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {

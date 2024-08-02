@@ -54,12 +54,14 @@ export default function UserRoutes(app) {
       return res.status(400).send({ error: "Password is not correct!" });
     }
 
-    if(currentUser){
-      req.session["currentUser"] = currentUser;
-      res.json(currentUser);
-    }else{
-      res.status(401).json({message: "Unable to login. Try again later."});
-    }
+    // if(currentUser){
+    //   req.session["currentUser"] = currentUser;
+    //   res.json(currentUser);
+    // }else{
+    //   res.status(401).json({message: "Unable to login. Try again later."});
+    // }
+    req.session["currentUser"] = currentUser;
+    res.json(currentUser);
   };
 
   const signout = (req, res) => { 
@@ -69,11 +71,11 @@ export default function UserRoutes(app) {
 
   const profile = (req, res) => {
     const currentUser = req.session["currentUser"];
+    console.log("In profile: ______________________");
     console.log(currentUser);
     console.log("___________________");
     if (!currentUser) {
       res.sendStatus(401);
-      
       return;
     }
     

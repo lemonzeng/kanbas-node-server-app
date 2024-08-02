@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const moduleSchema = new mongoose.Schema({
-  _id: { type: String}, 
+  _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() }, 
   name: { type: String},
   description: String,
   course: { type: String},
